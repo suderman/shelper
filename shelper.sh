@@ -6,19 +6,21 @@
 # Include this line at the top of your shell script:
 # eval "$(cat ~/.local/share/shelper.sh || curl shelper.suderman.io/shelper.sh)"
 
-# True if command does exist
+# True if command or file does exist
 has() {
+  if [ -e "$1" ]; then return 0; fi
   command -v $1 >/dev/null 2>&1 && { return 0; }
   return 1
 }
 
-# True if command doesn't exist
+# True if command or file doesn't exist
 hasnt() {
-  command -v $1 >/dev/null 2>&1 || { return 0; }
-  return 1
+  if [ -e "$1" ]; then return 1; fi
+  command -v $1 >/dev/null 2>&1 && { return 1; }
+  return 0
 }
 
-# Source from ~/.local or github
+# Source from file system or URL
 source-curl() { 
   if [ $# -eq 2 ]; then
     eval "$(cat $1 || curl $2)" 
@@ -41,4 +43,10 @@ msg-ask() {
     if [ ! $? -ne 0 ]; then return 0; else return 1; fi
   fi
 }
+
+# Install a local copy of this script
+if hasnt "$HOME/.local/share/shelper.sh"; then
+  mkdir -p $HOME/.local/share
+  curl -sS "shelper.suderman.io/shelper.sh" -o "$HOME/.local/share/shelper.sh"
+fi
 
