@@ -60,3 +60,8 @@ Returns true if the uname is 'Darwin'
 
 Returns true if the uname is 'Linux' 
 
+###shelper
+
+Call this to delete the local copy, download a fresh copy, and reload
+this script.
+

@@ -22,13 +22,13 @@ hasnt() {
 
 # True if this is a Mac
 osx() {
-  if [ "`uname`" == 'Darwin' ]; then return 0; fi
+  if [[ "`uname`" == 'Darwin' ]]; then return 0; fi
   return 1
 }
 
 # True if this is Linux
 ubuntu() {
-  if [ "`uname`" == 'Linux' ]; then return 0; fi
+  if [[ "`uname`" == 'Linux' ]]; then return 0; fi
   return 1
 }
 
@@ -63,6 +63,13 @@ msg-ask() {
     [[ $REPLY =~ ^[Yy]$ ]]
     if [ ! $? -ne 0 ]; then return 0; else return 1; fi
   fi
+}
+
+
+# Reload from Github
+shelper() {
+  rm -rf "$HOME/.local/share/shelper.sh"
+  eval "$(cat ~/.local/share/shelper.sh || curl shelper.suderman.io/shelper.sh)"
 }
 
 # Install a local copy of this script
