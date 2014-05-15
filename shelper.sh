@@ -20,18 +20,6 @@ hasnt() {
   return 0
 }
 
-# True if this is a Mac
-osx() {
-  if [[ "`uname`" == 'Darwin' ]]; then return 0; fi
-  return 1
-}
-
-# True if this is Linux
-ubuntu() {
-  if [[ "`uname`" == 'Linux' ]]; then return 0; fi
-  return 1
-}
-
 # Source from file system or URL
 source-curl() { 
   if [ $# -eq 2 ]; then
@@ -49,22 +37,50 @@ source-existing() {
 }
 
 # Pretty messages
-msg() { printf "\n\e[0;32m=> \e[0;37m$1\e[0m\n"; }
-
-# Perhaps these are too specific and need to be generalized?
-msg-install() { printf "\n\e[0;32m=> \e[0;37mInstalling \e[0;36m$1\e[0;37m...\e[0m\n"; }
+msg() { printf "\n$_green_=> $_white_$1\n"; }
 
 # If $answer is "y", then we don't bother with user input
-msg-ask() { 
-  if [ "$answer" == "y" ]; then msg-install $1;
-  else
-    printf "\n\e[0;32m=> \e[0;37mDo you want to install \e[0;36m$1\e[0;37m on this computer?\e[0m" 
-    read -p " y/[n] " -n 1 -r; echo
-    [[ $REPLY =~ ^[Yy]$ ]]
-    if [ ! $? -ne 0 ]; then return 0; else return 1; fi
+ask() { 
+  if [[ "$answer" == "y" ]]; then return 0; fi
+  printf "\n$_green_=> $_white_$1$_reset_";
+  (is bash) && read -p " y/[n] " -n 1 -r
+  (is zsh) && read -q "REPLY? y/[n] " -n 1 -r
+  echo
+  [[ $REPLY =~ ^[Yy]$ ]]
+  if [ ! $? -ne 0 ]; then return 0; else return 1; fi
+}
+
+# Check shell type and OS
+is() {
+  if [ $# -eq 1 ]; then
+    [[ "$1" == "tcsh"   ]] && [[ "$(shell)" == "tcsh"  ]] && return 0
+    [[ "$1" == "bash"   ]] && [[ "$(shell)" == "bash"  ]] && return 0
+    [[ "$1" == "zsh"    ]] && [[ "$(shell)" == "zsh"   ]] && return 0
+    [[ "$1" == "sh"     ]] && [[ "$(shell)" == "sh"    ]] && return 0
+    [[ "$1" == "osx"    ]] && [[ "`uname`" == 'Darwin' ]] && return 0
+    [[ "$1" == "ubuntu" ]] && [[ "`uname`" == 'Linux'  ]] && return 0
+  fi
+  return 1
+}
+
+# Clever hacks to discover shell type
+shell() {
+  if [ -n "$version" ]; then echo "tcsh"
+  elif [ -n "$BASH" ]; then echo "bash"
+  elif [ -n "$ZSH_NAME" ]; then echo "zsh" 
+  else echo "sh"
   fi
 }
 
+# Colors               Underline                       Background             Color Reset        
+_black_='\e[0;30m';   _underline_black_='\e[4;30m';   _on_black_='\e[40m';   _reset_='\e[0m' 
+_red_='\e[0;31m';     _underline_red_='\e[4;31m';     _on_red_='\e[41m';
+_green_='\e[0;32m';   _underline_green_='\e[4;32m';   _on_green_='\e[42m';
+_yellow_='\e[0;33m';  _underline_yellow_='\e[4;33m';  _on_yellow_='\e[43m';
+_blue_='\e[0;34m';    _underline_blue_='\e[4;34m';    _on_blue_='\e[44m';
+_purple_='\e[0;35m';  _underline_purple_='\e[4;35m';  _on_purple_='\e[45m';
+_cyan_='\e[0;36m';    _underline_cyan_='\e[4;36m';    _on_cyan_='\e[46m';
+_white_='\e[0;37m';   _underline_white_='\e[4;37m';   _on_white_='\e[47m';
 
 # Reload from Github
 shelper() {

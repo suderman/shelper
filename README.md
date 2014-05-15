@@ -38,6 +38,10 @@ Pass this a message you want printed out all pretty-like. For example:
 msg "Updating the system..."  
 ```
 
+###ask  
+
+Pass this a message and it will return true if the user presses y.  
+
 ###source-curl  
 
 Pass this a local file to try to source, and an URL to curl if it
@@ -52,13 +56,9 @@ source-curl ~/.local/zsh/script.sh example.com/script.sh
 Source a script, but only if it exists on the local file system
 
 
-###osx  
+###is  
 
-Returns true if the uname is 'Darwin' 
-
-###ubuntu  
-
-Returns true if the uname is 'Linux' 
+Check shell type and OS
 
 ###shelper
 
