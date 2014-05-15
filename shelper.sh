@@ -20,35 +20,47 @@ hasnt() {
   return 0
 }
 
-# Source from file system or URL
-source-curl() { 
-  if [ $# -eq 2 ]; then
-    eval "$(cat $1 || curl $2)" 
-  fi
-}
+# Source from file system or URL, fail gracefully
+source() {
 
-# Source only if local file exists
-source-existing() { 
-  if [ $# -eq 1 ]; then
-    if [ -f "$1" ]; then
-      source $1
+  # source if ~/path/to/file-if-exists.sh
+  if [[ "$1" == "if" ]]; then 
+    if [ -f "$2" ]; then 
+      builtin source "$2" && return 0;
     fi
+
+  # source ~/path/to/file-that-does-exist.sh
+  elif [ -f "$1" ]; then
+    builtin source "$1" && return 0;
   fi
+
+  # url might be second argument if it's a remote fallback
+  url="$1"; [ -n "$2" ] && url="$2" 
+
+  # convert url to file path for caching
+  file="$(__url-to-file "$url")"
+
+  # source new www.example.com/always-new-download.sh
+  [[ "$1" == "new" ]] && rm -f "$file" 
+
+  # save url to local version if it doesn't exist
+  [ -f "$file" ] || curl -s "$url" -o "$file"
+
+  # source downloaded file
+  [ -f "$file" ] && builtin source "$file" && return 0;
+
+  return 1
 }
 
-# Pretty messages
-msg() { printf "\n$_green_=> $_white_$1\n"; }
-
-# If $answer is "y", then we don't bother with user input
-ask() { 
-  if [[ "$answer" == "y" ]]; then return 0; fi
-  printf "\n$_green_=> $_white_$1$_reset_";
-  (is bash) && read -p " y/[n] " -n 1 -r
-  (is zsh) && read -q "REPLY? y/[n] " -n 1 -r
-  echo
-  [[ $REPLY =~ ^[Yy]$ ]]
-  if [ ! $? -ne 0 ]; then return 0; else return 1; fi
+__url-to-file() {
+  localsrc="$HOME/.local/share/source"
+  mkdir -p "$localsrc"
+  echo "$localsrc/$(echo "$1" | sed \
+      -e 's./.-SLASH-.g' \
+      -e 's.:.-COLON-.g' \
+      -e 's.|.-PIPE-.g')"
 }
+
 
 # Check shell type and OS
 is() {
@@ -81,6 +93,36 @@ _blue_='\e[0;34m';    _underline_blue_='\e[4;34m';    _on_blue_='\e[44m';
 _purple_='\e[0;35m';  _underline_purple_='\e[4;35m';  _on_purple_='\e[45m';
 _cyan_='\e[0;36m';    _underline_cyan_='\e[4;36m';    _on_cyan_='\e[46m';
 _white_='\e[0;37m';   _underline_white_='\e[4;37m';   _on_white_='\e[47m';
+
+# These can be overridden
+export MSG_COLOR="$_white_"
+export MSG_PROMPT="\n$_green_=> $_reset_"
+
+# Pretty messages
+msg() { printf "$MSG_PROMPT$MSG_COLOR$1$_reset_\n"; }
+
+# Color functions
+black()  { echo "$_black_$1$MSG_COLOR"; }
+red()    { echo "$_red_$1$MSG_COLOR"; }
+green()  { echo "$_green_$1$MSG_COLOR"; }
+yellow() { echo "$_yellow_$1$MSG_COLOR"; }
+blue()   { echo "$_blue_$1$MSG_COLOR"; }
+purple() { echo "$_purple_$1$MSG_COLOR"; }
+cyan()   { echo "$_cyan_$1$MSG_COLOR"; }
+white()  { echo "$_white_$1$MSG_COLOR"; }
+
+# If $answer is "y", then we don't bother with user input
+ask() { 
+  if [[ "$answer" == "y" ]]; then return 0; fi
+  printf "$MSG_PROMPT$MSG_COLOR$1$_reset_";
+
+  (is bash) && read -p " y/[n] " -n 1 -r
+  (is zsh) && read -q "REPLY? y/[n] " -n 1 -r
+  echo
+  [[ $REPLY =~ ^[Yy]$ ]]
+  if [ ! $? -ne 0 ]; then return 0; else return 1; fi
+}
+
 
 # Reload from Github
 shelper() {
