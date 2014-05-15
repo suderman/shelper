@@ -47,3 +47,16 @@ doesn't exist. For example:
 source-curl ~/.local/zsh/script.sh example.com/script.sh  
 ```
 
+###source-existing  
+
+Source a script, but only if it exists on the local file system
+
+
+###osx  
+
+Returns true if the uname is 'Darwin' 
+
+###ubuntu  
+
+Returns true if the uname is 'Linux' 
+

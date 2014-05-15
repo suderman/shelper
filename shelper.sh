@@ -20,10 +20,31 @@ hasnt() {
   return 0
 }
 
+# True if this is a Mac
+osx() {
+  if [ "`uname`" == 'Darwin' ]; then return 0; fi
+  return 1
+}
+
+# True if this is Linux
+ubuntu() {
+  if [ "`uname`" == 'Linux' ]; then return 0; fi
+  return 1
+}
+
 # Source from file system or URL
 source-curl() { 
   if [ $# -eq 2 ]; then
     eval "$(cat $1 || curl $2)" 
+  fi
+}
+
+# Source only if local file exists
+source-existing() { 
+  if [ $# -eq 1 ]; then
+    if [ -f "$1" ]; then
+      source $1
+    fi
   fi
 }
 
