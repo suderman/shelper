@@ -73,7 +73,7 @@ export MSG_COLOR="$_white_"
 export MSG_PROMPT="\n$_green_=> $_reset_"
 
 # Pretty messages
-msg() { printf "$MSG_PROMPT$MSG_COLOR$1\n"; }
+msg() { printf "$MSG_PROMPT$MSG_COLOR$1$_reset_\n"; }
 
 # Color functions
 black()  { echo "$_black_$1$MSG_COLOR"; }
