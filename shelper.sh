@@ -36,20 +36,6 @@ source-existing() {
   fi
 }
 
-# Pretty messages
-msg() { printf "\n$_green_=> $_white_$1\n"; }
-
-# If $answer is "y", then we don't bother with user input
-ask() { 
-  if [[ "$answer" == "y" ]]; then return 0; fi
-  printf "\n$_green_=> $_white_$1$_reset_";
-  (is bash) && read -p " y/[n] " -n 1 -r
-  (is zsh) && read -q "REPLY? y/[n] " -n 1 -r
-  echo
-  [[ $REPLY =~ ^[Yy]$ ]]
-  if [ ! $? -ne 0 ]; then return 0; else return 1; fi
-}
-
 # Check shell type and OS
 is() {
   if [ $# -eq 1 ]; then
@@ -81,6 +67,36 @@ _blue_='\e[0;34m';    _underline_blue_='\e[4;34m';    _on_blue_='\e[44m';
 _purple_='\e[0;35m';  _underline_purple_='\e[4;35m';  _on_purple_='\e[45m';
 _cyan_='\e[0;36m';    _underline_cyan_='\e[4;36m';    _on_cyan_='\e[46m';
 _white_='\e[0;37m';   _underline_white_='\e[4;37m';   _on_white_='\e[47m';
+
+# These can be overridden
+export MSG_COLOR="$_white_"
+export MSG_PROMPT="\n$_green_=> $_reset_"
+
+# Pretty messages
+msg() { printf "$MSG_PROMPT$MSG_COLOR$1\n"; }
+
+# Color functions
+black()  { echo "$_black_$1$MSG_COLOR"; }
+red()    { echo "$_red_$1$MSG_COLOR"; }
+green()  { echo "$_green_$1$MSG_COLOR"; }
+yellow() { echo "$_yellow_$1$MSG_COLOR"; }
+blue()   { echo "$_blue_$1$MSG_COLOR"; }
+purple() { echo "$_purple_$1$MSG_COLOR"; }
+cyan()   { echo "$_cyan_$1$MSG_COLOR"; }
+white()  { echo "$_white_$1$MSG_COLOR"; }
+
+# If $answer is "y", then we don't bother with user input
+ask() { 
+  if [[ "$answer" == "y" ]]; then return 0; fi
+  printf "$MSG_PROMPT$MSG_COLOR$1$_reset_";
+
+  (is bash) && read -p " y/[n] " -n 1 -r
+  (is zsh) && read -q "REPLY? y/[n] " -n 1 -r
+  echo
+  [[ $REPLY =~ ^[Yy]$ ]]
+  if [ ! $? -ne 0 ]; then return 0; else return 1; fi
+}
+
 
 # Reload from Github
 shelper() {
