@@ -4,7 +4,7 @@
 # https://github.com/suderman/shelper
 
 # Include this line at the top of your shell script:
-# eval "$(cat ~/.local/share/shelper.sh || curl shelper.suderman.io/shelper.sh)"
+# eval "$(cat ~/.local/share/shelper.sh || curl suderman.github.io/shelper/shelper.sh)"
 
 # True if command or file does exist
 has() {
@@ -127,7 +127,7 @@ ask() {
 # Reload from Github
 shelper() {
   rm -rf "$HOME/.local/share/shelper.sh"
-  eval "$(cat ~/.local/share/shelper.sh || curl shelper.suderman.io/shelper.sh)"
+  eval "$(cat ~/.local/share/shelper.sh || curl suderman.github.io/shelper/shelper.sh)"
 }
 
 # Install a local copy of this script
