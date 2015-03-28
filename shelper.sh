@@ -133,6 +133,6 @@ shelper() {
 # Install a local copy of this script
 if hasnt "$HOME/.local/share/shelper.sh"; then
   mkdir -p $HOME/.local/share
-  curl -sS "shelper.suderman.io/shelper.sh" -o "$HOME/.local/share/shelper.sh"
+  curl -sS "suderman.github.io/shelper/shelper.sh" -o "$HOME/.local/share/shelper.sh"
 fi
 
