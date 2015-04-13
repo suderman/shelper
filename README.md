@@ -7,7 +7,7 @@ Note: The shell script is on the gh-pages branch, for the sake of the shorter UR
 ## Installation  
 
 Include this line at the top of your shell script:  
-`eval "$(cat ~/.local/share/shelper.sh || curl shelper.suderman.io/shelper.sh)"`  
+`eval "$(cat ~/.local/share/shelper.sh || curl suderman.github.io/shelper/shelper.sh)"`  
 
 ## Methods
 
