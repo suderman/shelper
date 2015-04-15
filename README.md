@@ -13,7 +13,7 @@ Include this line at the top of your shell script:
 
 ###has  
 
-Pass this a command as an arugument to find out if it exists. For
+Pass this a command as an argument to find out if it exists. For
 example:
 
 ```
