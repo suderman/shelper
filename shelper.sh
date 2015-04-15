@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 2014 Jon Suderman
+# 2015 Jon Suderman
 # https://github.com/suderman/shelper
 
 # Include this line at the top of your shell script:
@@ -127,7 +127,8 @@ ask() {
 # Reload from Github
 shelper() {
   rm -rf "$HOME/.local/share/shelper.sh"
-  eval "$(cat ~/.local/share/shelper.sh || curl suderman.github.io/shelper/shelper.sh)"
+  curl -sS "suderman.github.io/shelper/shelper.sh" -o "$HOME/.local/share/shelper.sh"
+  eval "$(cat ~/.local/share/shelper.sh)"
 }
 
 # Install a local copy of this script
