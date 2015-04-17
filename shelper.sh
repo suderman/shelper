@@ -123,6 +123,107 @@ ask() {
   if [ ! $? -ne 0 ]; then return 0; else return 1; fi
 }
 
+# Save a variable to disk, using existing or default
+ref() {
+  if [ $# -lt 1 ]; then
+    msg 'Usage: VARIABLE=$(ref VARIABLE defaultvalue)'
+  else
+
+    # Ensure ~/.ref exists and define store
+    store=$HOME/.ref/$1
+    mkdir -p $HOME/.ref && touch $store
+
+    # Attempt to get value from variable
+    value=$(eval echo \$$1)
+
+    # If value successfully set, save it to store
+    [ -z "$value" ] || echo $value > $store
+
+    # Attempt to get value from store
+    value=$(cat $store)
+
+    # If value is still unset, use default and save that to store
+    if [ ! -z "$2" ]; then
+      [ -z "$value" ] && value="$2" && echo $value > $store
+    fi
+
+    # Return value
+    echo $value
+  fi
+}
+
+# Dereference (expand) $VARIABLES in a file and write to disk
+deref() {
+  if [ ! -r "$1" ]; then
+    msg "Usage: deref /path/to/file"
+  else
+
+    # Loop all environment variable lines
+    for line in $(printenv); do
+
+      # Get variable name
+      search="$( cut -d '=' -f 1 <<< "$line" )";
+
+      # Look only for UPPERCASE variables
+      if [ $(echo $search | grep "^[A-Z]") ]; then
+
+        # Get value of UPPERCASE variable
+        replace=$(eval echo \$$search)
+
+        # Replace all $UPPERCASE names with values (skips values with = character)
+        [[ $replace == *"="* ]] || sed -i "s=\$$search=$replace=g" $1
+
+      fi
+    done
+  fi
+}
+
+# Note: Search/Replace
+# sed -i s/SEARCH/REPLACE/g file.txt
+
+# Append line to end of file if it doesn't exist
+append() {
+  if [ $# -lt 2 ] || [ ! -r "$2" ]; then
+    msg 'Usage: append "line to append" /path/to/file'
+  else
+    grep -q "$1" $2 || echo "$1" >> $2
+  fi
+}
+
+# Copy from file system or URL, fail gracefully
+unalias cp >/dev/null 2>/dev/null
+cp() {
+
+  # Expand paths
+  src=$(echo "$1")
+  dest=$(echo "$2")
+
+  # Ensure destination directory exists
+  /bin/mkdir -p "$(dirname $dest)"
+
+  # Save backup of destination if it exists
+  [ -e "$dest" ] && /bin/mv "$dest" "$dest.bak"
+
+  # cp ~/path/to/existing-file.txt ~/path/to/destination.txt
+  if [ -e "$src" ]; then 
+    /bin/cp -rf "$src" "$dest";
+  else
+
+    # Attempt to download 
+    /bin/rm -rf "$dest.curl"
+    curl "$src" -so "$dest.curl"
+
+    # cp www.good-domain.com/real-file.txt ~/path/to/destination.txt
+    if [ -s "$dest.curl" ]; then
+      /bin/mv "$dest.curl" "$dest"
+
+    # cp www.bad-domain.com/bad-file.txt ~/path/to/destination.txt
+    elif [ -f "$dest.bak" ]; then
+      /bin/rm -rf "$dest.curl" 
+      /bin/mv "$dest.bak" "$dest"
+    fi
+  fi
+}
 
 # Reload from Github
 shelper() {
@@ -136,4 +237,3 @@ if hasnt "$HOME/.local/share/shelper.sh"; then
   mkdir -p $HOME/.local/share
   curl -sS "suderman.github.io/shelper/shelper.sh" -o "$HOME/.local/share/shelper.sh"
 fi
-
