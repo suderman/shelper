@@ -193,34 +193,38 @@ append() {
 # Copy from file system or URL, fail gracefully
 unalias cp >/dev/null 2>/dev/null
 cp() {
-
-  # Expand paths
-  src=$(echo "$1")
-  dest=$(echo "$2")
-
-  # Ensure destination directory exists
-  /bin/mkdir -p "$(dirname $dest)"
-
-  # Save backup of destination if it exists
-  [ -e "$dest" ] && /bin/mv "$dest" "$dest.bak"
-
-  # cp ~/path/to/existing-file.txt ~/path/to/destination.txt
-  if [ -e "$src" ]; then 
-    /bin/cp -rf "$src" "$dest";
+  if [ $# -lt 2 ]; then
+    msg 'Usage: cp source destination'
   else
 
-    # Attempt to download 
-    /bin/rm -rf "$dest.curl"
-    curl "$src" -so "$dest.curl"
+    # Expand paths
+    src=$(echo "$1")
+    dest=$(echo "$2")
 
-    # cp www.good-domain.com/real-file.txt ~/path/to/destination.txt
-    if [ -s "$dest.curl" ]; then
-      /bin/mv "$dest.curl" "$dest"
+    # Ensure destination directory exists
+    /bin/mkdir -p "$(dirname $dest)"
 
-    # cp www.bad-domain.com/bad-file.txt ~/path/to/destination.txt
-    elif [ -f "$dest.bak" ]; then
-      /bin/rm -rf "$dest.curl" 
-      /bin/mv "$dest.bak" "$dest"
+    # Save backup of destination if it exists
+    [ -e "$dest" ] && /bin/mv "$dest" "$dest.bak"
+
+    # cp ~/path/to/existing-file.txt ~/path/to/destination.txt
+    if [ -e "$src" ]; then 
+      /bin/cp -rf "$src" "$dest";
+    else
+
+      # Attempt to download 
+      /bin/rm -rf "$dest.curl"
+      curl "$src" -so "$dest.curl"
+
+      # cp www.good-domain.com/real-file.txt ~/path/to/destination.txt
+      if [ -s "$dest.curl" ]; then
+        /bin/mv "$dest.curl" "$dest"
+
+      # cp www.bad-domain.com/bad-file.txt ~/path/to/destination.txt
+      elif [ -f "$dest.bak" ]; then
+        /bin/rm -rf "$dest.curl" 
+        /bin/mv "$dest.bak" "$dest"
+      fi
     fi
   fi
 }
