@@ -123,6 +123,11 @@ ask() {
   if [ ! $? -ne 0 ]; then return 0; else return 1; fi
 }
 
+# Usage: echo $(escape "$1")
+escape() {
+  echo "$@" | sed 's/\([^a-zA-Z0-9_]\)/\\\1/g'
+}
+
 # Save a variable to disk, using existing or default
 ref() {
   if [ $# -lt 1 ]; then
@@ -191,10 +196,9 @@ append() {
 }
 
 # Copy from file system or URL, fail gracefully
-unalias cp >/dev/null 2>/dev/null
-cp() {
+copy() {
   if [ $# -lt 2 ]; then
-    msg 'Usage: cp source destination'
+    msg 'Usage: copy source destination'
   else
 
     # Expand paths
@@ -207,7 +211,7 @@ cp() {
     # Save backup of destination if it exists
     [ -e "$dest" ] && /bin/mv "$dest" "$dest.bak"
 
-    # cp ~/path/to/existing-file.txt ~/path/to/destination.txt
+    # copy ~/path/to/existing-file.txt ~/path/to/destination.txt
     if [ -e "$src" ]; then 
       /bin/cp -rf "$src" "$dest";
     else
@@ -216,11 +220,11 @@ cp() {
       /bin/rm -rf "$dest.curl"
       curl "$src" -so "$dest.curl"
 
-      # cp www.good-domain.com/real-file.txt ~/path/to/destination.txt
+      # copy www.good-domain.com/real-file.txt ~/path/to/destination.txt
       if [ -s "$dest.curl" ]; then
         /bin/mv "$dest.curl" "$dest"
 
-      # cp www.bad-domain.com/bad-file.txt ~/path/to/destination.txt
+      # copy www.bad-domain.com/bad-file.txt ~/path/to/destination.txt
       elif [ -f "$dest.bak" ]; then
         /bin/rm -rf "$dest.curl" 
         /bin/mv "$dest.bak" "$dest"

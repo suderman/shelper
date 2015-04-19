@@ -107,20 +107,20 @@ Check type of shell and OS. For example:
 (is ubuntu) && echo "This OS is Ubuntu"    
 ```
 
-###cp    
+###copy    
 
-Give this a source file and a destination file to copy to. This is normal behaviour, except the destination will always be overwritten and directories will always copy recursvively (`cp -rf`).  When overwriting, a backup copy of the destination is created (.bak) in the destination's directory. Also, the destination's directory structure will be built if neccessary with `mkdir -p`.  
+Give this a source file and a destination file to copy to. This is normal behaviour for `cp`, except the destination will always be overwritten and directories will always copy recursvively (`cp -rf`).  When overwriting, a backup copy of the destination is created (`.bak`) in the destination's directory. Also, the destination's directory structure will be built if neccessary with `mkdir -p`.  
 
 For example:
 
 ```
-cp ~/downloads/file.txt ~/unmade/nested/directories/myfile.txt   
+copy ~/downloads/file.txt ~/unmade/nested/directories/myfile.txt   
 ```  
 
 Alternatively pass a URL as the source to download the remote file to the local destination. For example:
 
 ```
-cp www.example.com/file.txt ~/unmade/nested/directories/myfile.txt   
+copy www.example.com/file.txt ~/unmade/nested/directories/myfile.txt   
 ```  
 
 ###append  
