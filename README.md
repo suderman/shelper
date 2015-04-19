@@ -36,6 +36,18 @@ This also works with files and directories. For example:
 
 Exactly the same as the previous method, but the other way around.  
 
+###defined  
+
+Pass this a variable to find out if it exists (non-empty). For example:
+
+```
+defined $HERO || HERO="Speed Racer"
+```
+
+###undefined  
+
+Exactly the same as the previous method, but the other way around.  
+
 ###msg  
 
 Pass this a message you want printed out all pretty-like. For example:  
