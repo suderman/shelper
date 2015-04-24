@@ -252,6 +252,15 @@ copy() {
   fi
 }
 
+# Run a command as a specific user
+runas() {
+  if [ $# -lt 2 ]; then
+    msg 'Usage: runas user command'
+  else
+    sudo -H -u $1 bash -c "${@:2}"
+  fi
+}
+
 # Reload from Github
 shelper() {
   rm -rf "$HOME/.local/share/shelper.sh"
