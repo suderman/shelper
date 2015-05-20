@@ -261,6 +261,71 @@ runas() {
   fi
 }
 
+# Remove leading/trailing whitespace
+trim() {
+  echo "$*" | sed 's/^ *//g' | sed 's/ *$//g'
+}
+
+# Lookup key by val or position
+key() {
+  if [ $# -lt 2 ]; then
+    msg 'Usage: key val key:value,key2:value2,lastkey:lastval'
+  else
+    echo $(
+      lookup=""; count=0; all=()
+      for pair in $(echo $2 | tr ',' ' '); do
+        let count=count+1
+        key=${pair%%:*}
+        val=${pair##*:}
+        all[count]=$key
+        [[ "$val" == "$1" ]] && lookup="$key"
+      done
+
+      if [[ $1 == :* ]]; then
+        if [[ $1 == :all ]]; then 
+          lookup=${all[*]}
+        else
+          index=${1##*:}
+          [[ $1 == :first ]] && index=1
+          [[ $1 == :last ]]  && index=$count
+          lookup="${all[$index]}"
+        fi
+      fi
+
+    echo $lookup)
+  fi
+}
+
+# Lookup val by key or position
+val() {
+  if [ $# -lt 2 ]; then
+    msg 'Usage: val key key:value,key2:value2,lastkey:lastval'
+  else
+    echo $(
+      lookup=""; count=0; all=()
+      for pair in $(echo $2 | tr ',' ' '); do
+        let count=count+1
+        key=${pair%%:*}
+        val=${pair##*:}
+        all[count]=$val
+        [[ "$key" == "$1" ]] && lookup="$val"
+      done
+
+      if [[ $1 == :* ]]; then
+        if [[ $1 == :all ]]; then 
+          lookup=${all[*]}
+        else
+          index=${1##*:}
+          [[ $1 == :first ]] && index=1
+          [[ $1 == :last ]]  && index=$count
+          lookup="${all[$index]}"
+        fi
+      fi
+
+    echo $lookup)
+  fi
+}
+
 # Reload from Github
 shelper() {
   rm -rf "$HOME/.local/share/shelper.sh"
