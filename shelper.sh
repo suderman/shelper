@@ -32,13 +32,6 @@ undefined() {
   return 1
 }
 
-# True if command or file doesn't exist
-hasnt() {
-  if [ -e "$1" ]; then return 1; fi
-  command -v $1 >/dev/null 2>&1 && { return 1; }
-  return 0
-}
-
 # Source from file system or URL, fail gracefully
 source() {
 
