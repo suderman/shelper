@@ -164,7 +164,39 @@ MY_VARIABLE=$(ref MY_VARIABLE 'my default value')'
 Dereference (expand) $VARIABLES in a file and replace with the literal values to disk. For example:  
 
 ```
-deref ~/file-to-be-replaced-with-dereferenced-contents.txt
+deref ~/file-to-be-replaced-with-dereferenced-contents.txt  
+```
+
+###keyval  
+
+Look up key-value pair from CSV string, searching by key or position (:first, :last, :1, :2, etc). For example: 
+
+```
+keyval larry "bob:s3cret,larry:passw0rd,admin:priv4te"  
+```
+
+```
+keyval :first "bob:s3cret,larry:passw0rd,admin:priv4te"  
+```
+
+```
+keyval :all "bob:s3cret,larry:passw0rd,admin:priv4te"  
+```
+
+###key  
+
+Look up key from CSV string, searching by value or position (:first, :last, :1, :2, etc).  
+
+###val  
+
+Look up value from CSV string, searching by key or position (:first, :last, :1, :2, etc).  
+
+###trim  
+
+Trim surrounding whitespace from a string. For example:    
+
+```
+trim "    mystring  "  
 ```
 
 ###shelper

@@ -47,10 +47,10 @@ source() {
   fi
 
   # url might be second argument if it's a remote fallback
-  url="$1"; [ -n "$2" ] && url="$2" 
+  local url="$1"; [ -n "$2" ] && url="$2" 
 
   # convert url to file path for caching
-  file="$(__url-to-file "$url")"
+  local file="$(__url-to-file "$url")"
 
   # source new www.example.com/always-new-download.sh
   [[ "$1" == "new" ]] && rm -f "$file" 
@@ -65,7 +65,7 @@ source() {
 }
 
 __url-to-file() {
-  localsrc="$HOME/.local/share/source"
+  local localsrc="$HOME/.local/share/source"
   mkdir -p "$localsrc"
   echo "$localsrc/$(echo "$1" | sed \
       -e 's./.-SLASH-.g' \
@@ -147,11 +147,11 @@ ref() {
   else
 
     # Ensure ~/.ref exists and define store
-    store=$HOME/.ref/$1
+    local store=$HOME/.ref/$1
     mkdir -p $HOME/.ref && touch $store
 
     # Attempt to get value from variable
-    value=$(eval echo \$$1)
+    local value=$(eval echo \$$1)
 
     # If value successfully set, save it to store
     [ -z "$value" ] || echo $value > $store
@@ -173,8 +173,7 @@ ref() {
 deref() {
   if [ ! -r "$1" ]; then
     msg "Usage: deref /path/to/file"
-  else
-
+  else $(
     # Loop all environment variable lines
     for line in $(printenv); do
 
@@ -188,11 +187,15 @@ deref() {
         replace=$(eval echo \$$search)
 
         # Replace all $UPPERCASE names with values (skips values with = character)
-        [[ $replace == *"="* ]] || sed -i "s=\$$search=$replace=g" $1
+        if (is osx); then
+          [[ $replace == *"="* ]] || sed -i '' "s=\$$search=$replace=g" $1
+        else
+          [[ $replace == *"="* ]] || sed -i    "s=\$$search=$replace=g" $1
+        fi
 
       fi
     done
-  fi
+  );fi
 }
 
 # Note: Search/Replace
@@ -214,32 +217,32 @@ copy() {
   else
 
     # Expand paths
-    src=$(echo "$1")
-    dest=$(echo "$2")
+    local src=$(echo "$1")
+    local dest=$(echo "$2")
 
     # Ensure destination directory exists
-    /bin/mkdir -p "$(dirname $dest)"
+    mkdir -p "$(dirname $dest)"
 
     # Save backup of destination if it exists
-    [ -e "$dest" ] && /bin/mv "$dest" "$dest.bak"
+    [ -e "$dest" ] && mv "$dest" "$dest.bak"
 
     # copy ~/path/to/existing-file.txt ~/path/to/destination.txt
     if [ -e "$src" ]; then 
-      /bin/cp -rf "$src" "$dest";
+      cp -rf "$src" "$dest";
     else
 
       # Attempt to download 
-      /bin/rm -rf "$dest.curl"
+      rm -rf "$dest.curl"
       curl "$src" -so "$dest.curl"
 
       # copy www.good-domain.com/real-file.txt ~/path/to/destination.txt
       if [ -s "$dest.curl" ]; then
-        /bin/mv "$dest.curl" "$dest"
+        mv "$dest.curl" "$dest"
 
       # copy www.bad-domain.com/bad-file.txt ~/path/to/destination.txt
       elif [ -f "$dest.bak" ]; then
-        /bin/rm -rf "$dest.curl" 
-        /bin/mv "$dest.bak" "$dest"
+        rm -rf "$dest.curl" 
+        mv "$dest.bak" "$dest"
       fi
     fi
   fi
@@ -251,6 +254,72 @@ runas() {
     msg 'Usage: runas user command'
   else
     sudo -H -u $1 bash -c "${@:2}"
+  fi
+}
+
+# Remove leading/trailing whitespace
+trim() {
+  echo "$*" | sed 's/^ *//g' | sed 's/ *$//g'
+}
+
+# Shared function for keyval, key, val
+__lookup() {
+  echo $(
+    lookup=""; count=0; all=()
+    for pair in $(echo $3 | tr ',' ' '); do
+      let count=count+1
+      key=${pair%%:*}
+      val=${pair##*:}
+      if [[ $1 == keyval ]]; then
+        all[count]=$pair
+        [[ "$key" == "$2" ]] && lookup="$pair"
+      elif [[ $1 == key ]]; then
+        all[count]=$key
+        [[ "$val" == "$2" ]] && lookup="$key"
+      elif [[ $1 == val ]]; then
+        all[count]=$val
+        [[ "$key" == "$2" ]] && lookup="$val"
+      fi
+    done
+
+    if [[ $2 == :* ]]; then
+      if [[ $2 == :all ]]; then 
+        lookup=${all[*]}
+      else
+        index=${2##*:}
+        [[ $2 == :first ]] && index=1
+        [[ $2 == :last ]]  && index=$count
+        lookup="${all[$index]}"
+      fi
+    fi
+
+  echo $lookup)
+}
+
+# Lookup keyval pair by key or position
+keyval() {
+  if [ $# -lt 2 ]; then
+    msg 'Usage: keyval (KEY|:POSITION) key:value,key2:value2,lastkey:lastval'
+  else
+    __lookup keyval $1 $2
+  fi
+}
+
+# Lookup key by val or position
+key() {
+  if [ $# -lt 2 ]; then
+    msg 'Usage: key (VAL|:POSITION) key:value,key2:value2,lastkey:lastval'
+  else
+    __lookup key $1 $2
+  fi
+}
+
+# Lookup val by key or position
+val() {
+  if [ $# -lt 2 ]; then
+    msg 'Usage: val (KEY|:POSITION) key:value,key2:value2,lastkey:lastval'
+  else
+    __lookup val $1 $2
   fi
 }
 
