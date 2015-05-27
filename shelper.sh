@@ -108,7 +108,7 @@ _white_='\e[0;37m';   _underline_white_='\e[4;37m';   _on_white_='\e[47m';
 
 # These can be overridden
 export MSG_COLOR="$_white_"
-export MSG_PROMPT="\n$_green_=> $_reset_"
+export MSG_PROMPT="$_green_=> $_reset_"
 
 # Pretty messages
 msg() { printf "$MSG_PROMPT$MSG_COLOR$1$_reset_\n"; }
