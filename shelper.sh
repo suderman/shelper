@@ -206,7 +206,7 @@ append() {
   if [ $# -lt 2 ] || [ ! -r "$2" ]; then
     msg 'Usage: append "line to append" /path/to/file'
   else
-    grep -q "$1" $2 || echo "$1" >> $2
+    grep -q "^$1" $2 || echo "$1" >> $2
   fi
 }
 
