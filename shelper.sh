@@ -350,6 +350,7 @@ waitfor() {
           printf "."
           sleep 2
         done
+        printf "$_reset_\n"; 
       fi
     fi
   fi
