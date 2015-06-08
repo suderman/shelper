@@ -323,6 +323,29 @@ val() {
   fi
 }
 
+# Make a script wait for host to be ready
+waitfor() {
+  if [ $# -lt 1 ]; then
+    msg 'Usage: waitfor host [cert/key basename]'
+  else
+    if defined "$2"; then
+      if has mysql; then
+        until defined $(mysql -h $1 --ssl-ca=ca.crt --ssl-cert=${2}.crt --ssl-key=${2}.key -e 'show databases;' 2>null); do
+          printf "."
+          sleep 3
+        done
+      fi
+    else
+      if has curl; then
+        until $(curl -fso /dev/null $1); do
+          printf "."
+          sleep 3
+        done
+      fi
+    fi
+  fi
+}
+
 # Reload from Github
 shelper() {
   rm -rf "$HOME/.local/share/shelper.sh"
