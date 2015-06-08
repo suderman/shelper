@@ -199,6 +199,23 @@ Trim surrounding whitespace from a string. For example:
 trim "    mystring  "  
 ```
 
+###waitfor  
+
+Make a script wait for a host to be ready. This can potentially block a script indefinitely. 
+The first argument is host:port and the default check is curl. For example: 
+
+```
+waitfor 10.0.0.5:8080  
+```
+
+If the port is 3306, it will try to log into MySQL instead. The second
+argument is the path to the certificate and key (file extensions .crt and
+.key will be appended). For example:
+
+```
+waitfor 10.0.0.5:3306 ~/certs/myserver  
+```
+
 ###shelper
 
 Call this to delete the local copy, download it fresh, and then reload

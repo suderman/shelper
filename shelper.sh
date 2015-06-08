@@ -328,23 +328,33 @@ waitfor() {
   if [ $# -lt 1 ]; then
     msg 'Usage: waitfor host [cert/key basename]'
   else
-    if defined "$2"; then
-      if has mysql; then
-        until defined $(mysql -h $1 --ssl-ca=ca.crt --ssl-cert=${2}.crt --ssl-key=${2}.key -e 'show databases;' 2>null); do
-          printf "."
-          sleep 3
-        done
-      fi
+    local host=${1%%:*}
+    local port=${1##*:}
+    [[ $host == $port ]] && port=80
+
+    if [[ "$port" == "3306" ]]; then
+      local command="mysql"
+      local certs=""
+      defined "$2" && certs="--ssl-cert=${2}.crt --ssl-key=${2}.key"
+      local check="defined \$(mysql -h $host -P $port $certs -e 'show databases;' 2>null)"
     else
-      if has curl; then
-        until $(curl -fso /dev/null $1); do
+      local command="curl"
+      local check="curl -fso /dev/null ${host}:${port}"
+    fi
+
+    if has $command; then
+      if ! $(eval $check); then
+        printf "${MSG_PROMPT}${MSG_COLOR}Waiting for ${host}:${port} to become available.";
+        sleep 2
+        until $(eval $check); do
           printf "."
-          sleep 3
+          sleep 2
         done
       fi
     fi
   fi
 }
+
 
 # Reload from Github
 shelper() {
