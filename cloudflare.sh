@@ -23,8 +23,8 @@ cf_id() {
                 -d email=$(key :first $CLOUDFLARE)             \
                 -d tkn=$(val :first $CLOUDFLARE)               \
                 -d z=$domain)
-    if [[ $records == *$name* ]]; then
-      records=${records%%$name*}
+    if [[ $records == *\"name\":\"$name\"* ]]; then
+      records=${records%%\"name\":\"$name\"*}
       records=${records##*\"rec_id\":\"}
       records=${records%%\"*}
       echo $records
